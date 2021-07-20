@@ -132,6 +132,7 @@
                                         <java.util.logging.manager>org.jboss.logmanager.LogManager
                                         </java.util.logging.manager>
                                         <maven.home>${maven.home}</maven.home>
+                                        <reportErrorsAtRuntime>true</reportErrorsAtRuntime>
                                     </systemPropertyVariables>
                                 </configuration>
                             </execution>

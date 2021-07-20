@@ -14,6 +14,11 @@ import java.util.stream.IntStream;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import ch.netstream.tv.services.MAAS2Service;
+import ch.netstream.tv.services.Satellite;
+import ch.netstream.tv.services.SatelliteId;
+import ch.netstream.tv.services.SolWeather;
+import ch.netstream.tv.services.WhereTheISSAtService;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -89,10 +94,10 @@ public class FetchTask {
     void fetchData() {
         executionCounter.increment();
 
-        WhereTheISSAtService.Satellite iss =
+        Satellite iss =
                 whereIsIssAtFetchTimer.record(this::getIssInformation);
         log.debug("Got ISS information: " + iss);
-        gaugeCache.put("iss.latitude", iss.latitude());
+        gaugeCache.put("iss.latitude", iss.getLatitude());
         registry.gauge(
                 "demo.quarkus.iss.latitude",
                 Tags.of(
@@ -100,7 +105,7 @@ public class FetchTask {
                         LABEL_OBJECT, LABEL_OBJECT_VALUE_ISS),
                 gaugeCache,
                 c -> c.get("iss.latitude"));
-        gaugeCache.put("iss.longitude", iss.longitude());
+        gaugeCache.put("iss.longitude", iss.getLongitude());
         registry.gauge(
                 "demo.quarkus.iss.longitude",
                 Tags.of(
@@ -108,7 +113,7 @@ public class FetchTask {
                         LABEL_OBJECT, LABEL_OBJECT_VALUE_ISS),
                 gaugeCache,
                 c -> c.get("iss.longitude"));
-        gaugeCache.put("iss.altitude", convertKilometersToMeters(iss.altitude()));
+        gaugeCache.put("iss.altitude", convertKilometersToMeters(iss.getAltitude()));
         registry.gauge(
                 "demo.quarkus.iss.altitude.meters",
                 Tags.of(
@@ -116,7 +121,7 @@ public class FetchTask {
                         LABEL_OBJECT, LABEL_OBJECT_VALUE_ISS),
                 gaugeCache,
                 c -> c.get("iss.altitude"));
-        gaugeCache.put("iss.velocity", iss.velocity());
+        gaugeCache.put("iss.velocity", iss.getVelocity());
         registry.gauge(
                 "demo.quarkus.iss.velocity.kmh",
                 Tags.of(
@@ -125,61 +130,61 @@ public class FetchTask {
                 gaugeCache,
                 c -> c.get("iss.velocity"));
         issAltitudeSummary.record(
-                convertKilometersToMeters(iss.altitude()));
+                convertKilometersToMeters(iss.getAltitude()));
 
-        List<MAAS2Service.SolWeather> marsWeather =
+        List<SolWeather> marsWeather =
                 marsWeatherFetchTimer.record(this::getMarsWeather);
         log.debug("Got Mars weather for the last " + solsToGet + " sols: " + marsWeather);
         marsWeather.forEach(sw -> {
-            gaugeCache.put("mars." + sw.sol() + ".min_temp", (double) sw.min_temp());
+            gaugeCache.put("mars." + sw.getSol() + ".min_temp", (double) sw.getMin_temp());
             registry.gauge(
                     "demo.quarkus.mars.weather.temperature.min.celsius",
                     Tags.of(
                             LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_QUARKUS,
                             LABEL_OBJECT, LABEL_OBJECT_VALUE_MARS,
-                            "sol", Integer.toString(sw.sol())),
+                            "sol", Integer.toString(sw.getSol())),
                     gaugeCache,
-                    c -> c.get("mars." + sw.sol() + ".min_temp"));
+                    c -> c.get("mars." + sw.getSol() + ".min_temp"));
 
-            gaugeCache.put("mars." + sw.sol() + ".max_temp", (double) sw.max_temp());
+            gaugeCache.put("mars." + sw.getSol() + ".max_temp", (double) sw.getMax_temp());
             registry.gauge(
                     "demo.quarkus.mars.weather.temperature.max.celsius",
                     Tags.of(
                             LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_QUARKUS,
                             LABEL_OBJECT, LABEL_OBJECT_VALUE_MARS,
-                            "sol", Integer.toString(sw.sol())),
+                            "sol", Integer.toString(sw.getSol())),
                     gaugeCache,
-                    c -> c.get("mars." + sw.sol() + ".max_temp"));
+                    c -> c.get("mars." + sw.getSol() + ".max_temp"));
 
-            final double psiPressure = sw.pressure() / 1000.0;
+            final double psiPressure = sw.getPressure() / 1000.0;
             marsWeatherSummaryPressure.record(psiPressure);
-            gaugeCache.put("mars." + sw.sol() + ".pressure", psiPressure);
+            gaugeCache.put("mars." + sw.getSol() + ".pressure", psiPressure);
             registry.gauge(
                     "demo.quarkus.mars.weather.pressure.psi",
                     Tags.of(
                             LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_QUARKUS,
                             LABEL_OBJECT, LABEL_OBJECT_VALUE_MARS,
-                            "sol", Integer.toString(sw.sol())),
+                            "sol", Integer.toString(sw.getSol())),
                     gaugeCache,
-                    c -> c.get("mars." + sw.sol() + ".pressure"));
+                    c -> c.get("mars." + sw.getSol() + ".pressure"));
         });
     }
 
-    private WhereTheISSAtService.Satellite getIssInformation() {
+    private Satellite getIssInformation() {
         if (issSatelliteId == null) {
             issSatelliteId = whereTheISSAtService.getSatelliteIds().stream()
-                    .filter(s -> s.name().equals("iss"))
-                    .map(WhereTheISSAtService.SatelliteId::id)
+                    .filter(s -> s.getName().equals("iss"))
+                    .map(SatelliteId::getId)
                     .findFirst()
                     .orElse(FALLBACK_ISS_SATELLITE_ID);
         }
         return whereTheISSAtService.getSatellite(issSatelliteId);
     }
 
-    private List<MAAS2Service.SolWeather> getMarsWeather() {
+    private List<SolWeather> getMarsWeather() {
         try {
-            MAAS2Service.SolWeather latest = maas2Service.getLatestWeather();
-            return IntStream.range(latest.sol() - solsToGet + 1, latest.sol() + 1)
+            SolWeather latest = maas2Service.getLatestWeather();
+            return IntStream.range(latest.getSol() - solsToGet + 1, latest.getSol() + 1)
                     .mapToObj(s -> maas2Service.getSolWeather(s))
                     .collect(Collectors.toList());
         } catch (RuntimeException ex) {

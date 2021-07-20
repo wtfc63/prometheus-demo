@@ -27,7 +27,7 @@ public class DemoResource {
     @Produces(MediaType.TEXT_PLAIN)
     public String demo() {
         helloCounter.increment();
-        return "Hello RESTEasy";
+        return "Hello Quarkus";
     }
 
 }

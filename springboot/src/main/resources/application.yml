@@ -1,0 +1,31 @@
+logging:
+    level:
+        ROOT: INFO
+        ch.netstream.tv: DEBUG
+
+spring:
+    profiles.active: default
+    # Application's name and whether to enable admin features
+    application:
+        name: @project.name@
+        admin.enabled: true
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include:
+                    - health
+                    - info
+                    - prometheus
+                    - metrics
+
+maas2-api:
+    baseURL: https://api.maas2.apollorion.com
+
+where-is-iss-at-api:
+    baseURL: https://api.wheretheiss.at/v1
+
+fetch:
+    mars-weather:
+        sols-to-get: 10

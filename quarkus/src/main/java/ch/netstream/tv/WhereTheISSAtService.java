@@ -10,18 +10,24 @@ import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
+/**
+ * API docs: https://wheretheiss.at/w/developer
+ */
 @Path("/v1")
+@Produces(MediaType.APPLICATION_JSON)
 @RegisterRestClient(configKey="where-is-iss-at-api")
 public interface WhereTheISSAtService {
 
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     @JsonSerialize
-    public record SatelliteId (int id, String name) {}
+    record SatelliteId (int id, String name) {}
 
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     @JsonSerialize
-    public record Satellite (
+    record Satellite (
             int id,
             String name,
             double latitude,
@@ -46,3 +52,4 @@ public interface WhereTheISSAtService {
     Satellite getSatellite(@PathParam int satelliteId);
 
 }
+

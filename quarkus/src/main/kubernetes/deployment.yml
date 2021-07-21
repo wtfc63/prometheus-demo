@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-demo-quarkus
+spec:
+  selector:
+    matchLabels:
+      run: prometheus-demo-quarkus
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        run: prometheus-demo-quarkus
+    spec:
+      containers:
+        - name: prometheus-demo-quarkus
+          image: wtfc63/prometheus-demo-quarkus:1.0-SNAPSHOT
+          ports:
+            - containerPort: 8080

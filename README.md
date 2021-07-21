@@ -16,24 +16,28 @@ Execute the following from the `./quarkus` directory (using JDK 11 and Maven 3.8
 
 Build Native image (runnable application):
 ```
-mvn -Pnative -Dquarkus.native.container-build=true package
+$ mvn -Pnative -Dquarkus.native.container-build=true package
 ```
 
 Build Native app & Container image:
 ```
-mvn -Pnative -Dquarkus.native.container-build=true -Dquarkus.container-image.build=true package
+$ mvn -Pnative -Dquarkus.native.container-build=true -Dquarkus.container-image.build=true package
 ```
 
 Build Native app & Container image and publish it to the Docker Hub:
 ```
-mvn -Pnative -Dquarkus.native.container-build=true -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true package
+$ mvn -Pnative -Dquarkus.native.container-build=true -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true package
 ```
 
 **NOTE:** Adapt the image group name and set the corresponding credentials in the config before attempting to publish the image:
 ```
-grep container src/main/resources/application.properties | grep -v jib
+$ grep container src/main/resources/application.properties | grep -v jib
 quarkus.container-image.group=<GROUP-NAME>
 quarkus.container-image.name=prometheus-demo-quarkus
 quarkus.container-image.username=<DOCKER-HUB-USERNAME>
 quarkus.container-image.password=<DOCKER-HUB-PASSWORD>
 ```
+
+## Spring Boot
+
+*TODO*

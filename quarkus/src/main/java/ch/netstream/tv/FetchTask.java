@@ -30,7 +30,6 @@ import io.quarkus.scheduler.Scheduled;
 public class FetchTask {
 
 
-
     public static final String LABEL_IMPLEMENTATION = "implementation";
     public static final String LABEL_IMPLEMENTATION_VALUE_QUARKUS = "quarkus";
 

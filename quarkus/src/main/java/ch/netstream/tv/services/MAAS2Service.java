@@ -8,9 +8,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import ch.netstream.tv.FetchTask;
-import io.micrometer.core.annotation.Timed;
-
 /**
  * API docs: https://maas2.apollorion.com/
  */

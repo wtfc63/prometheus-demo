@@ -11,9 +11,22 @@ spec:
     metadata:
       labels:
         run: prometheus-demo-quarkus
+        app: prometheus-demo
     spec:
       containers:
         - name: prometheus-demo-quarkus
-          image: wtfc63/prometheus-demo-quarkus:1.0-SNAPSHOT
+          image: wtfc63/prometheus-demo-quarkus:latest
           ports:
             - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /monitoring/health/liveness
+              port: 8080
+            initialDelaySeconds: 1
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /monitoring/health/readiness
+              port: 8080
+            initialDelaySeconds: 2
+            periodSeconds: 5

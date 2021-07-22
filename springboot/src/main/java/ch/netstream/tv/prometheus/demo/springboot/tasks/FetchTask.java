@@ -98,7 +98,7 @@ public class FetchTask {
             value = METRIC_PREFIX + ".fetch",
             extraTags = { LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_SPRINGBOOT }
     )
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 30 * 1000)
     public void fetchData() {
         executionCounter.increment();
 

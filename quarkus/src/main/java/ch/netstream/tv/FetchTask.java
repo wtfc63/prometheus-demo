@@ -92,7 +92,7 @@ public class FetchTask {
                 LABEL_OBJECT, LABEL_OBJECT_VALUE_MARS);
     }
 
-    @Scheduled(every="5s")
+    @Scheduled(every="30s")
     void fetchData() {
         executionCounter.increment();
 

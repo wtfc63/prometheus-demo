@@ -19,6 +19,17 @@ management:
                     - info
                     - prometheus
                     - metrics
+            base-path: /monitoring
+    endpoint:
+        health:
+            probes:
+                enabled: true
+    health:
+        livenessstate:
+            enabled: true
+        readinessstate:
+            enabled: true
+
 
 maas2-api:
     baseURL: https://api.maas2.apollorion.com

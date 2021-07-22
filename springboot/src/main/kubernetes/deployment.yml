@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-demo-springboot
+spec:
+  selector:
+    matchLabels:
+      run: prometheus-demo-springboot
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        run: prometheus-demo-springboot
+        app: prometheus-demo
+    spec:
+      containers:
+        - name: prometheus-demo-springboot
+          image: wtfc63/prometheus-demo-springboot:latest
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /monitoring/health/liveness
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /monitoring/health/readiness
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5

@@ -38,7 +38,8 @@ public class FetchTask {
     public static final String LABEL_OBJECT_VALUE_ISS = "iss";
     public static final String LABEL_OBJECT_VALUE_MARS = "mars";
 
-    public static final int FALLBACK_ISS_SATELLITE_ID = 25544;
+    private static final String METRIC_PREFIX = "demo";
+    private static final int FALLBACK_ISS_SATELLITE_ID = 25544;
 
 
     private static final Logger log = LoggerFactory.getLogger(FetchTask.class);
@@ -72,29 +73,29 @@ public class FetchTask {
         this.maas2Service = maas2Service;
 
         executionCounter = registry.counter(
-                "demo.springboot.fetch.executions",
+                METRIC_PREFIX + ".fetch.executions",
                 LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_SPRINGBOOT);
         gaugeCache = new HashMap<>();
 
         whereIsIssAtFetchTimer = registry.timer(
-                "demo.springboot.fetch.iss",
+                METRIC_PREFIX + ".fetch.iss",
                 LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_SPRINGBOOT);
         issAltitudeSummary = registry.summary(
-                "demo.springboot.iss.altitude.meters.total",
+                METRIC_PREFIX + ".iss.altitude.meters.total",
                 LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_SPRINGBOOT,
                 LABEL_OBJECT, LABEL_OBJECT_VALUE_ISS);
 
         marsWeatherFetchTimer = registry.timer(
-                "demo.springboot.fetch.mars",
+                METRIC_PREFIX + ".fetch.mars",
                 LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_SPRINGBOOT);
         marsWeatherSummaryPressure = registry.summary(
-                "demo.springboot.mars.weather.pressure.psi.total",
+                METRIC_PREFIX + ".mars.weather.pressure.psi.total",
                 LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_SPRINGBOOT,
                 LABEL_OBJECT, LABEL_OBJECT_VALUE_MARS);
     }
 
     @Timed(
-            value = "demo.springboot.fetch",
+            value = METRIC_PREFIX + ".fetch",
             extraTags = { LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_SPRINGBOOT }
     )
     @Scheduled(fixedRate = 5000)
@@ -106,7 +107,7 @@ public class FetchTask {
         log.debug("Got ISS information: " + iss);
         gaugeCache.put("iss.latitude", Objects.requireNonNull(iss).getLatitude());
         registry.gauge(
-                "demo.springboot.iss.latitude",
+                METRIC_PREFIX + ".iss.latitude",
                 Tags.of(
                         LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_SPRINGBOOT,
                         LABEL_OBJECT, LABEL_OBJECT_VALUE_ISS),
@@ -114,7 +115,7 @@ public class FetchTask {
                 c -> c.get("iss.latitude"));
         gaugeCache.put("iss.longitude", iss.getLongitude());
         registry.gauge(
-                "demo.springboot.iss.longitude",
+                METRIC_PREFIX + ".iss.longitude",
                 Tags.of(
                         LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_SPRINGBOOT,
                         LABEL_OBJECT, LABEL_OBJECT_VALUE_ISS),
@@ -122,7 +123,7 @@ public class FetchTask {
                 c -> c.get("iss.longitude"));
         gaugeCache.put("iss.altitude", convertKilometersToMeters(iss.getAltitude()));
         registry.gauge(
-                "demo.springboot.iss.altitude.meters",
+                METRIC_PREFIX + ".iss.altitude.meters",
                 Tags.of(
                         LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_SPRINGBOOT,
                         LABEL_OBJECT, LABEL_OBJECT_VALUE_ISS),
@@ -130,7 +131,7 @@ public class FetchTask {
                 c -> c.get("iss.altitude"));
         gaugeCache.put("iss.velocity", iss.getVelocity());
         registry.gauge(
-                "demo.springboot.iss.velocity.kmh",
+                METRIC_PREFIX + ".iss.velocity.kmh",
                 Tags.of(
                         LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_SPRINGBOOT,
                         LABEL_OBJECT, LABEL_OBJECT_VALUE_ISS),
@@ -145,7 +146,7 @@ public class FetchTask {
         Objects.requireNonNull(marsWeather).forEach(sw -> {
             gaugeCache.put("mars." + sw.getSol() + ".min_temp", (double) sw.getMin_temp());
             registry.gauge(
-                    "demo.springboot.mars.weather.temperature.min.celsius",
+                    METRIC_PREFIX + ".mars.weather.temperature.min.celsius",
                     Tags.of(
                             LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_SPRINGBOOT,
                             LABEL_OBJECT, LABEL_OBJECT_VALUE_MARS,
@@ -155,7 +156,7 @@ public class FetchTask {
 
             gaugeCache.put("mars." + sw.getSol() + ".max_temp", (double) sw.getMax_temp());
             registry.gauge(
-                    "demo.springboot.mars.weather.temperature.max.celsius",
+                    METRIC_PREFIX + ".mars.weather.temperature.max.celsius",
                     Tags.of(
                             LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_SPRINGBOOT,
                             LABEL_OBJECT, LABEL_OBJECT_VALUE_MARS,
@@ -167,7 +168,7 @@ public class FetchTask {
             marsWeatherSummaryPressure.record(psiPressure);
             gaugeCache.put("mars." + sw.getSol() + ".pressure", psiPressure);
             registry.gauge(
-                    "demo.springboot.mars.weather.pressure.psi",
+                    METRIC_PREFIX + ".mars.weather.pressure.psi",
                     Tags.of(
                             LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_SPRINGBOOT,
                             LABEL_OBJECT, LABEL_OBJECT_VALUE_MARS,

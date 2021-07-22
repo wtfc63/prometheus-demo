@@ -25,7 +25,7 @@ public class MAAS2Service {
     }
 
     @Timed(
-            value = "demo.springboot.service.maas2.getsolweather",
+            value = "demo.service.maas2.getsolweather",
             extraTags = { FetchTask.LABEL_IMPLEMENTATION, FetchTask.LABEL_IMPLEMENTATION_VALUE_SPRINGBOOT }
     )
     public SolWeather getSolWeather(int sol) {

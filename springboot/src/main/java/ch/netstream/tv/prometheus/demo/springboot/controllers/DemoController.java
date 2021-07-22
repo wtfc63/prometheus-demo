@@ -33,7 +33,7 @@ public class DemoController {
 
     @GetMapping("/demo")
     @Counted(
-            value = "demo.springboot.hellos",
+            value = "demo.hellos",
             extraTags = { "implementation", "springboot" })
     public String demo() {
         return "Hello Spring Boot";

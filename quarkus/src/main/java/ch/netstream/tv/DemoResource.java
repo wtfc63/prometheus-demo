@@ -19,7 +19,7 @@ public class DemoResource {
 
     public DemoResource(MeterRegistry registry) {
         this.registry = registry;
-        helloCounter = registry.counter("demo.quarkus.hellos", "implementation", "quarkus");
+        helloCounter = registry.counter("demo.hellos", "implementation", "quarkus");
     }
 
 

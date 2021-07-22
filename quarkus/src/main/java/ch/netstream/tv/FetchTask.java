@@ -30,6 +30,7 @@ import io.quarkus.scheduler.Scheduled;
 public class FetchTask {
 
 
+
     public static final String LABEL_IMPLEMENTATION = "implementation";
     public static final String LABEL_IMPLEMENTATION_VALUE_QUARKUS = "quarkus";
 
@@ -37,7 +38,9 @@ public class FetchTask {
     public static final String LABEL_OBJECT_VALUE_ISS = "iss";
     public static final String LABEL_OBJECT_VALUE_MARS = "mars";
 
-    public static final int FALLBACK_ISS_SATELLITE_ID = 25544;
+    private static final String METRIC_PREFIX = "demo";
+    private static final int FALLBACK_ISS_SATELLITE_ID = 25544;
+
 
     private final MeterRegistry registry;
     private final Counter executionCounter;
@@ -69,23 +72,23 @@ public class FetchTask {
     public FetchTask(MeterRegistry registry) {
         this.registry = registry;
         executionCounter = registry.counter(
-                "demo.quarkus.fetch.executions",
+                METRIC_PREFIX + ".fetch.executions",
                 LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_QUARKUS);
         gaugeCache = new HashMap<>();
 
         whereIsIssAtFetchTimer = registry.timer(
-                "demo.quarkus.fetch.iss",
+                METRIC_PREFIX + ".fetch.iss",
                 LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_QUARKUS);
         issAltitudeSummary = registry.summary(
-                "demo.quarkus.iss.altitude.meters.total",
+                METRIC_PREFIX + ".iss.altitude.meters.total",
                 LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_QUARKUS,
                 LABEL_OBJECT, LABEL_OBJECT_VALUE_ISS);
 
         marsWeatherFetchTimer = registry.timer(
-                "demo.quarkus.fetch.mars",
+                METRIC_PREFIX + ".fetch.mars",
                 LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_QUARKUS);
         marsWeatherSummaryPressure = registry.summary(
-                "demo.quarkus.mars.weather.pressure.psi.total",
+                METRIC_PREFIX + ".mars.weather.pressure.psi.total",
                 LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_QUARKUS,
                 LABEL_OBJECT, LABEL_OBJECT_VALUE_MARS);
     }
@@ -99,7 +102,7 @@ public class FetchTask {
         log.debug("Got ISS information: " + iss);
         gaugeCache.put("iss.latitude", iss.getLatitude());
         registry.gauge(
-                "demo.quarkus.iss.latitude",
+                METRIC_PREFIX + ".iss.latitude",
                 Tags.of(
                         LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_QUARKUS,
                         LABEL_OBJECT, LABEL_OBJECT_VALUE_ISS),
@@ -107,7 +110,7 @@ public class FetchTask {
                 c -> c.get("iss.latitude"));
         gaugeCache.put("iss.longitude", iss.getLongitude());
         registry.gauge(
-                "demo.quarkus.iss.longitude",
+                METRIC_PREFIX + ".iss.longitude",
                 Tags.of(
                         LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_QUARKUS,
                         LABEL_OBJECT, LABEL_OBJECT_VALUE_ISS),
@@ -115,7 +118,7 @@ public class FetchTask {
                 c -> c.get("iss.longitude"));
         gaugeCache.put("iss.altitude", convertKilometersToMeters(iss.getAltitude()));
         registry.gauge(
-                "demo.quarkus.iss.altitude.meters",
+                METRIC_PREFIX + ".iss.altitude.meters",
                 Tags.of(
                         LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_QUARKUS,
                         LABEL_OBJECT, LABEL_OBJECT_VALUE_ISS),
@@ -123,7 +126,7 @@ public class FetchTask {
                 c -> c.get("iss.altitude"));
         gaugeCache.put("iss.velocity", iss.getVelocity());
         registry.gauge(
-                "demo.quarkus.iss.velocity.kmh",
+                METRIC_PREFIX + ".iss.velocity.kmh",
                 Tags.of(
                         LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_QUARKUS,
                         LABEL_OBJECT, LABEL_OBJECT_VALUE_ISS),
@@ -138,7 +141,7 @@ public class FetchTask {
         marsWeather.forEach(sw -> {
             gaugeCache.put("mars." + sw.getSol() + ".min_temp", (double) sw.getMin_temp());
             registry.gauge(
-                    "demo.quarkus.mars.weather.temperature.min.celsius",
+                    METRIC_PREFIX + ".mars.weather.temperature.min.celsius",
                     Tags.of(
                             LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_QUARKUS,
                             LABEL_OBJECT, LABEL_OBJECT_VALUE_MARS,
@@ -148,7 +151,7 @@ public class FetchTask {
 
             gaugeCache.put("mars." + sw.getSol() + ".max_temp", (double) sw.getMax_temp());
             registry.gauge(
-                    "demo.quarkus.mars.weather.temperature.max.celsius",
+                    METRIC_PREFIX + ".mars.weather.temperature.max.celsius",
                     Tags.of(
                             LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_QUARKUS,
                             LABEL_OBJECT, LABEL_OBJECT_VALUE_MARS,
@@ -160,7 +163,7 @@ public class FetchTask {
             marsWeatherSummaryPressure.record(psiPressure);
             gaugeCache.put("mars." + sw.getSol() + ".pressure", psiPressure);
             registry.gauge(
-                    "demo.quarkus.mars.weather.pressure.psi",
+                    METRIC_PREFIX + ".mars.weather.pressure.psi",
                     Tags.of(
                             LABEL_IMPLEMENTATION, LABEL_IMPLEMENTATION_VALUE_QUARKUS,
                             LABEL_OBJECT, LABEL_OBJECT_VALUE_MARS,
